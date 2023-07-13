@@ -25,11 +25,15 @@ const SearchCheckBox: React.FC<PropsMovie> = ({ idMovie }) => {
 
     useEffect(() => {
         if (pathName === linkDetails) {
-            setIdActorMovie(actorDefault);
+            setIdActorMovieChange(actorDefault);
         }
     }, [actorDefault, pathName]);
 
-    const [idActor, setIdActorMovie] = useState<number[]>(pathName === linkDetails ? actorDefault : []);
+    const idActor = pathName === linkDetails ? actorDefault : [];
+    const [idActorChange, setIdActorMovieChange] = useState<number[]>(actorDefault);
+
+    const addIdActorChange = idActorChange.filter((items) => !idActor.includes(items));
+    const deleteIdActorChange = idActor.filter((items) => !idActorChange.includes(items));
 
     const [isLoading, setIsLoading] = useState(true);
 
@@ -58,7 +62,7 @@ const SearchCheckBox: React.FC<PropsMovie> = ({ idMovie }) => {
 
     // Hàm uncheck input
     const handleCheckboxChange = useCallback((idActor: number) => {
-        setIdActorMovie((prevArr) => {
+        setIdActorMovieChange((prevArr) => {
             const index = prevArr.indexOf(idActor);
             if (index > -1) {
                 return prevArr.filter((item) => item !== idActor);
@@ -70,22 +74,38 @@ const SearchCheckBox: React.FC<PropsMovie> = ({ idMovie }) => {
 
     const handleSubmit = (e: any) => {
         e.preventDefault();
+        //thứ nhất điều kiện phải là Giá trị idActor > 0
+        //idActor = idActorChange thì sẽ có các trường hợp sau
+        //TH1: không thay đổi và giữ nguyên bản như cũ
+        //TH2: trường hợp update một giá trị trong mảng (Tìm được vị trí của mảng, lấy được giá trị của mảng truyền vào api PUT(IdActorMovieList,data change))
+        //idActor < idActorChange thì sẽ gọi đến APi POST(gồm idMovie,[idActor])
+        //idActor > idActorChange thì sẽ gọi đến API Delete(gồm idActor)
         if (idActor.length > 0 && idMovie) {
             const actorMovieData = idActor.map((idActorMovie) => ({
                 idMovie,
                 idActorMovie,
             }));
             // viết thêm trường hợp check xem có phải trang details không, nếu đang ở trang detail thì sẽ put vào api còn ngược lại đẩy lại vào post
-            if (pathName === linkDetails) {
-                putDataListActorMovie(idMovie, actorMovieData);
-                alert('Edit Actor Movie Done !');
-                router.push(`/list-movies/details/${idMovie}`);
+            if (pathName == linkDetails) {
+                if (idActor == idActorChange) {
+                    location.reload();
+                }
+
+                if (addIdActorChange.length > 0) {
+                    console.log('API thêm mới:', addIdActorChange);
+                    // Gọi API thêm mới
+                }
+
+                if (deleteIdActorChange.length > 0) {
+                    console.log('API Xóa:', deleteIdActorChange);
+                    // Gọi API Xóa
+                }
             } else {
                 postDataListActorMovie(actorMovieData);
                 router.push(`/list-movies/choose-category/${idMovie}`);
             }
         } else {
-            alert('Please fill in all the required fields');
+            alert('No actor were chosen');
         }
     };
 
