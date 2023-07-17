@@ -14,7 +14,6 @@ interface Props {
 
 const BoxCard: React.FC<Props> = ({ titleTotal, total, isLoading, totalDetails }) => {
     totalDetails = totalDetails;
-    console.log({ totalDetails });
 
     const [viewAll, setViewAll] = useState(false);
     return (

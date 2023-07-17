@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
 import { postDataMovies } from '@/api/apiConfict';
-import SearchCheckBox from '@/components/input-search-list';
 
 interface Props {
     idMovie: number;
