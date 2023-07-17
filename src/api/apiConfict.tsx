@@ -51,6 +51,32 @@ export const putDataMovies = async (id: string, data) => {
     console.log(result);
 };
 
+export const putTitleMovies = async (id: string, title: string) => {
+    const url = 'http://localhost:3000/api/putTitleMovies';
+    const response = await fetch(`${url}/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ title }),
+    });
+    const result = await response.json();
+    console.log(result);
+};
+
+export const putDescriptionMovies = async (id: string, description: string) => {
+    const url = 'http://localhost:3000/api/putDescriptionMovies';
+    const response = await fetch(`${url}/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ description }),
+    });
+    const result = await response.json();
+    console.log(result);
+};
+
 export const deleteDataMovies = async (id: number) => {
     const url = `https://6422313386992901b2c385d3.mockapi.io/id/${id}`;
 
@@ -193,6 +219,23 @@ export const getActorMovieById = async (id: string) => {
         const response = await fetch(`http://localhost:3000/api/getActorMovie/${id}`);
         const data = await response.json();
         return data;
+    } catch (error) {
+        console.error(error);
+    }
+};
+// /getActorMovie/:lastname
+export const getActorMovieByLastName = async (lastname: string) => {
+    try {
+        if (lastname == '') {
+            const response = await fetch(`http://localhost:3000/api/getActorMovie`);
+            const data = await response.json();
+            return data;
+        } else {
+            const encodedLastName = encodeURIComponent(lastname);
+            const response = await fetch(`http://localhost:3000/api/getActorMovieByName/${encodedLastName}`);
+            const data = await response.json();
+            return data;
+        }
     } catch (error) {
         console.error(error);
     }

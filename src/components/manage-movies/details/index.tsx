@@ -1,4 +1,4 @@
-import { getDataListActorMovieId, getDataListCategorysId, getDataMoviesId } from '@/api/apiConfict';
+import { getDataListActorMovieId, getDataListCategorysId, getDataMoviesId, putDescriptionMovies, putTitleMovies } from '@/api/apiConfict';
 import CategoryItem from '@/components/category';
 import Loading from '@/components/loading';
 import Image from 'next/image';
@@ -61,10 +61,13 @@ const DeatailsMovies: React.FC<Props> = ({ path }) => {
 
     const [changeTitle, setChangeTitle] = useState(false);
     const [title, setTitle] = useState(data.title);
+
     const [changeDescription, setChangeDescription] = useState(false);
     const [description, setDescription] = useState(data.description);
+
     const [changeCategory, setChangeCategory] = useState(false);
     const [changeActor, setChangeActor] = useState(false);
+
     useEffect(() => {
         setDescription(data.description);
         setTitle(data.title);
@@ -77,7 +80,7 @@ const DeatailsMovies: React.FC<Props> = ({ path }) => {
             setIsLoading(false);
         };
         fetchData();
-    }, [path]);
+    }, [path, changeTitle, changeDescription]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -119,21 +122,37 @@ const DeatailsMovies: React.FC<Props> = ({ path }) => {
         setChangeDescription(true);
     }, []);
 
-    const handleSubmitDescription = useCallback((e: any) => {
-        e.preventDefault();
-        setChangeDescription(false);
-    }, []);
+    const handleSubmitDescription = useCallback(
+        (e: any) => {
+            e.preventDefault();
+            setChangeDescription(false);
+            putDescriptionMovies(path, description);
+        },
+        [description, path],
+    );
 
     const handleChangeActor = useCallback(() => {
         setChangeActor(true);
     }, []);
 
-    const handleButtonClick = useCallback(() => {
-        setChangeTitle(false);
+    const handleBlur = useCallback(() => {
+        switch (true) {
+            case changeTitle:
+                setChangeTitle(false);
+                putTitleMovies(path, title);
+                console.log({ path, title });
+                break;
+            case changeDescription:
+                setChangeDescription(false);
+                putDescriptionMovies(path, description);
+                console.log({ path, description });
+                break;
+        }
+
         setChangeDescription(false);
         setChangeCategory(false);
         setChangeActor(false);
-    }, []);
+    }, [changeDescription, changeTitle, description, path, title]);
 
     return (
         <div className="flex-shrink-0 mt-[72px]">
@@ -162,7 +181,7 @@ const DeatailsMovies: React.FC<Props> = ({ path }) => {
                                                     className="text-white bg-transparent text-2xl font-medium w-[600px] mr-3"
                                                     defaultValue={data.title}
                                                     onChange={(e) => setTitle(e.target.value)}
-                                                    onBlur={handleButtonClick}
+                                                    onBlur={handleBlur}
                                                 />
                                             ) : (
                                                 <h2 className="text-2xl font-medium mr-2">{data.title}</h2>
@@ -181,16 +200,16 @@ const DeatailsMovies: React.FC<Props> = ({ path }) => {
                                                 </span>
                                             </div>
                                             {/* MovieGenre */}
-                                            <div className=" flex">
+                                            {/* <div className=" flex">
                                                 {category.map((items) => (
                                                     <CategoryItem key={items.idMovieGenre} item={items} />
                                                 ))}
-                                            </div>
-                                            <EditIcon handleChange={handleChangeCategory} className="my-1" />
+                                            </div> */}
+                                            {/* <EditIcon handleChange={handleChangeCategory} className="my-1" /> */}
                                             {/* Thêm hiệu ứng Popup  */}
                                             {changeCategory && (
                                                 <div className="fixed top-0 left-0 z-20 w-full h-full bg-shadow3">
-                                                    <ChooosCategoryMovies id={data.idMovie} onClick={handleButtonClick} />
+                                                    <ChooosCategoryMovies id={data.idMovie} onClick={handleBlur} />
                                                 </div>
                                             )}
                                         </div>
@@ -204,7 +223,7 @@ const DeatailsMovies: React.FC<Props> = ({ path }) => {
                                                     className="text-white bg-transparent text-base font-medium w-full h-[80%] mr-3 text-justify"
                                                     defaultValue={data.description}
                                                     onChange={(e) => setDescription(e.target.value)}
-                                                    onBlur={handleButtonClick}
+                                                    onBlur={handleBlur}
                                                 />
                                                 <button type="submit" className="w-full h-[10%] bg-white my-3">
                                                     <EditIcon className="mx-auto" fill="black" />
@@ -222,7 +241,7 @@ const DeatailsMovies: React.FC<Props> = ({ path }) => {
                                         <EditIcon handleChange={handleChangeActor} className="ml-2" />
                                         {changeActor && (
                                             <div className={`fixed top-0 left-0 z-20 w-full h-full bg-shadow3`}>
-                                                <ChooosActorMovies id={data.idMovie} onClick={handleButtonClick} />
+                                                <ChooosActorMovies id={data.idMovie} onClick={handleBlur} />
                                             </div>
                                         )}
                                     </div>
