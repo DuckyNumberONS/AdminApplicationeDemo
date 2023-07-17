@@ -1,4 +1,4 @@
-import { getDataActorMovie, getDataListActorMovieId, postDataListActorMovie, putDataListActorMovie } from '@/api/apiConfict';
+import { getActorMovieByLastName, getDataListActorMovieId, postDataListActorMovie } from '@/api/apiConfict';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useState } from 'react';
 
@@ -20,7 +20,7 @@ const SearchCheckBox: React.FC<PropsMovie> = ({ idMovie }) => {
     const linkDetails = '/list-movies/details/[id]';
 
     const [searchValue, setSearchValue] = useState('');
-    const [data, setData] = useState<Props[]>([]);
+    const [dataSearch, setDataSearch] = useState<Props[]>([]);
     const [actorDefault, setActorDefault] = useState<number[]>([]);
 
     useEffect(() => {
@@ -48,13 +48,13 @@ const SearchCheckBox: React.FC<PropsMovie> = ({ idMovie }) => {
     }, [idMovie, pathName]);
 
     useEffect(() => {
-        const data = async () => {
-            const res = await getDataActorMovie();
-            setData(res);
+        const fetchData = async () => {
+            const result = await getActorMovieByLastName(searchValue);
             setIsLoading(false);
+            setDataSearch(result);
         };
-        data();
-    }, []);
+        fetchData();
+    }, [searchValue]);
 
     const handleSearchChange = (event: any) => {
         setSearchValue(event.target.value);
@@ -114,27 +114,33 @@ const SearchCheckBox: React.FC<PropsMovie> = ({ idMovie }) => {
             <label htmlFor="searchActor" className="block  font-medium text-gray-700 mb-1">
                 Actor Movie
             </label>
-            <input id="searchActor" type="search" placeholder="Search..." value={searchValue} onChange={handleSearchChange} className="w-full border p-3 mb-3 rounded-lg" />
+            <input id="searchActor" type="search" placeholder="Search..." value={searchValue} onChange={handleSearchChange} className="w-full border p-3 mb-3 rounded-lg text-black" />
             <ul className="h-[400px] overflow-y-scroll">
-                {data.map((items) => (
-                    <li key={items.idActorMovie} className="h-[100px] p-3 my-2 border grid lg:grid-cols-2">
-                        <div className="flex items-center">
-                            <input
-                                type="checkbox"
-                                id={`${items.firstName}`}
-                                className="mr-2  focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                onClick={() => handleCheckboxChange(items.idActorMovie)}
-                                defaultChecked={actorDefault.includes(items.idActorMovie)}
-                            />
-                            <label className="text-xl text-black" htmlFor={`${items.firstName}`}>
-                                {items.firstName + ' ' + items.lastName}
-                            </label>
-                        </div>
-                        <div className=" justify-self-end">
-                            <img src={items.imgActorMovie} alt={items.firstName + ' ' + items.lastName} className="w-[60px] h-[80px] mr-4" />
-                        </div>
-                    </li>
-                ))}
+                {dataSearch.length > 0 ? (
+                    dataSearch.map((items) => (
+                        <li key={items.idActorMovie} className="h-[100px] p-3 my-2 border grid lg:grid-cols-2">
+                            <div className="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    id={`${items.idActorMovie}`}
+                                    className="mr-2  focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                    onClick={() => handleCheckboxChange(items.idActorMovie)}
+                                    defaultChecked={actorDefault.includes(items.idActorMovie)}
+                                />
+                                <label className="text-xl text-black" htmlFor={`${items.idActorMovie}`}>
+                                    {items.firstName + ' ' + items.lastName}
+                                </label>
+                            </div>
+                            <div className=" justify-self-end">
+                                <img src={items.imgActorMovie} alt={items.firstName + ' ' + items.lastName} className="w-[60px] h-[80px] mr-4" />
+                            </div>
+                        </li>
+                    ))
+                ) : (
+                    <div>
+                        <p className="text-black text-center text-md my-20">Actor not found ...</p>
+                    </div>
+                )}
             </ul>
             <div className="mt-10">
                 <input type="submit" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md w-full" value={pathName === linkDetails ? 'Edit' : 'Step 3'} />
