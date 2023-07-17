@@ -14,13 +14,11 @@ const AddActorMoviesForm = () => {
     const [lastName, setLastName] = useState('');
     const [story, setStory] = useState('');
     const [imgActorMovie, setImgActorMovie] = useState('');
-    console.log({ imgActorMovie });
 
     const router = useRouter();
     const handleSubmit = (e: any) => {
         e.preventDefault();
         const data = { firstName, lastName, story, imgActorMovie };
-        console.log({ data });
 
         postDataActorMovie(data);
         router.push('/list-actor-movies');
